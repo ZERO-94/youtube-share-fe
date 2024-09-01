@@ -1,54 +1,72 @@
-import React, { useState, useEffect } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import './App.css';
-import io from 'socket.io-client';
-import { Button } from 'antd';
+import AppHeader from './components/AppHeader';
+import HomePage from './pages/HomePage';
+import SharePage from './pages/SharePage';
 
-const socket = io('localhost:3000');
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: (
+      <>
+        <AppHeader />
+        <HomePage />
+      </>
+    ),
+  },
+  {
+    path: '/share',
+    element: (
+      <>
+        <AppHeader />
+        <SharePage />
+      </>
+    ),
+  },
+]);
+
+const queryClient = new QueryClient();
+
+export const UserContext = React.createContext({
+  user: null,
+  setUser: (value) => {},
+});
 
 function App() {
-  const [isConnected, setIsConnected] = useState(socket.connected);
-  const [lastMessage, setLastMessage] = useState(null);
+  const [user, setUser] = useState(null);
+
+  console.log(user);
 
   useEffect(() => {
-    socket.on('connect', () => {
-      setIsConnected(true);
-    });
-    socket.on('disconnect', () => {
-      setIsConnected(false);
-    });
-    socket.on('message', (data) => {
-      setLastMessage(data);
-    });
-    return () => {
-      socket.off('connect');
-      socket.off('disconnect');
-      socket.off('message');
-    };
+    const token = localStorage.getItem('remitano_token');
+    if (token) {
+      axios
+        .get('http://localhost:3000/auth/profile', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((res) => {
+          const data = res.data;
+          setUser(data);
+        })
+        .catch(() => {
+          setUser(null);
+        });
+    } else {
+      setUser(null);
+    }
   }, []);
 
-  const sendMessage = () => {
-    socket.emit('events', {data: 1});
-  };
-
   return (
-    <div className="App">
-      <header className="App-header">
-        <p>Connected: {'' + isConnected}</p>
-        <p>Last message: {lastMessage || '-'}</p>
-        <Button onClick={sendMessage}>Send message</Button>
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <UserContext.Provider value={{ user, setUser }}>
+        <RouterProvider router={router} />
+      </UserContext.Provider>
+    </QueryClientProvider>
   );
 }
 
