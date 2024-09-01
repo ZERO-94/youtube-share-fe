@@ -6,6 +6,9 @@ import './App.css';
 import AppHeader from './components/AppHeader';
 import HomePage from './pages/HomePage';
 import SharePage from './pages/SharePage';
+import { getProfileAPI } from './services/authServices';
+import { setAuthorizationHeader } from './services/axiosClient';
+import { SocketProvider } from './components/SocketContainer';
 
 const router = createBrowserRouter([
   {
@@ -37,26 +40,21 @@ export const UserContext = React.createContext({
 
 function App() {
   const [user, setUser] = useState(null);
-
-  console.log(user);
-
   useEffect(() => {
     const token = localStorage.getItem('remitano_token');
     if (token) {
-      axios
-        .get('http://localhost:3000/auth/profile', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+      getProfileAPI(token)
         .then((res) => {
           const data = res.data;
+          setAuthorizationHeader(token);
           setUser(data);
         })
         .catch(() => {
+          setAuthorizationHeader();
           setUser(null);
         });
     } else {
+      setAuthorizationHeader();
       setUser(null);
     }
   }, []);
@@ -64,7 +62,9 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <UserContext.Provider value={{ user, setUser }}>
-        <RouterProvider router={router} />
+        <SocketProvider>
+          <RouterProvider router={router} />
+        </SocketProvider>
       </UserContext.Provider>
     </QueryClientProvider>
   );

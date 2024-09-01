@@ -18,10 +18,7 @@ export default function AppHeader() {
       const res = await loginAPI(data);
       const userRes = await getProfileAPI(res.data.access_token);
       setAuthorizationHeader(res.data.access_token);
-      localStorage.setItem(
-        'remitano_token',
-        res.data.access_token.access_token
-      );
+      localStorage.setItem('remitano_token', res.data.access_token);
       return userRes.data;
     },
     onSuccess: async (data) => {
