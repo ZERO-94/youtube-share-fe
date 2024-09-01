@@ -8,7 +8,7 @@ import {
   DislikeFilled,
 } from '@ant-design/icons';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { reactVideoAPI } from '../services/videoServices';
+import { deleteReactionAPI, reactVideoAPI } from '../services/videoServices';
 import { UserContext } from '../App';
 
 const VideoCard = ({
@@ -36,11 +36,34 @@ const VideoCard = ({
     },
   });
 
+  const removeMutation = useMutation({
+    mutationFn: async (videoId: string) => {
+      await deleteReactionAPI(videoId);
+    },
+    onSettled: async () => {
+      queryClient.refetchQueries({
+        queryKey: ['videos'],
+      });
+    },
+  });
+
+  const handleRemoveReaction = () => {
+    removeMutation.mutate(videoId);
+  };
+
   const handleLike = () => {
+    if (userReacted === 'like') {
+      handleRemoveReaction();
+      return;
+    }
     mutation.mutate({ videoId, type: 'like' });
   };
 
   const handleDislike = () => {
+    if (userReacted === 'dislike') {
+      handleRemoveReaction();
+      return;
+    }
     mutation.mutate({ videoId, type: 'dislike' });
   };
 
@@ -61,7 +84,10 @@ const VideoCard = ({
         </div>
         <div className="flex-grow justify-start text-left p-4 overflow-hidden">
           <div className="flex justify-between">
-            <a className="text-red-600 font-bold text-lg" href={url}>
+            <a
+              className="text-red-600 font-bold text-lg line-clamp-1 w-4/5"
+              href={url}
+            >
               {title}
             </a>
             {user && (

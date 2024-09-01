@@ -7,3 +7,6 @@ export const shareVideoAPI = (url: string) =>
 
 export const reactVideoAPI = (videoId: string, type: string) =>
   axiosClient.post(`/videos/${videoId}/react`, { type });
+
+export const deleteReactionAPI = (videoId: string) =>
+  axiosClient.delete(`/videos/${videoId}/react`);
