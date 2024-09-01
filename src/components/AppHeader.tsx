@@ -80,8 +80,9 @@ export default function AppHeader() {
               type="primary"
               className="transform hover:scale-105 transition duration-300"
             >
-              Login / Register
+              Login
             </Button>
+            <Button onClick={() => navigate('/register')}>Register</Button>
           </Form>
         ) : (
           <div className="flex items-center space-x-2">

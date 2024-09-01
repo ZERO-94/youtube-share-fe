@@ -17,3 +17,12 @@ export const getProfileAPI = (jwt?: string) =>
           Authorization: `Bearer ${jwt}`,
         },
       });
+
+export const registerAPI = (data: { email: string; password: string }) => {
+  return axios.post('/auth/register', data, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    baseURL: import.meta.env.VITE_BACKEND_ENDPOINT,
+  });
+};

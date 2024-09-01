@@ -28,7 +28,7 @@ export default function YoutubeList() {
             videoId={video.videoId}
             totalLikes={video.totalLikes}
             totalDislikes={video.totalDislikes}
-            userReacted={video?.userReaction?.type}
+            userReacted={video?.userReactionType}
           />
         ))}
       </ul>

@@ -2,11 +2,13 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import io, { Socket } from 'socket.io-client';
 import { UserContext } from '../App';
 import { notification } from 'antd';
+import { useQueryClient } from '@tanstack/react-query';
 
 export const SocketContext = createContext<Socket | null>(null);
 
 export const SocketProvider = ({ children }) => {
   const { user } = useContext(UserContext);
+  const queryClient = useQueryClient();
   const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
@@ -33,7 +35,9 @@ export const SocketProvider = ({ children }) => {
 
     // Handle any incoming messages
     newSocket.on('new-video', (data) => {
-      console.log('New video shared:', data);
+      queryClient.refetchQueries({
+        queryKey: ['videos', user?.email],
+      });
       if (user && data.videoData.sharedBy !== user?._id)
         notification.info({
           message: 'New video is shared!',

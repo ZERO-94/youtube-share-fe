@@ -9,6 +9,7 @@ import SharePage from './pages/SharePage';
 import { getProfileAPI } from './services/authServices';
 import { setAuthorizationHeader } from './services/axiosClient';
 import { SocketProvider } from './components/SocketContainer';
+import RegisterPage from './pages/RegisterPage';
 
 const router = createBrowserRouter([
   {
@@ -26,6 +27,15 @@ const router = createBrowserRouter([
       <>
         <AppHeader />
         <SharePage />
+      </>
+    ),
+  },
+  {
+    path: '/register',
+    element: (
+      <>
+        <AppHeader />
+        <RegisterPage />
       </>
     ),
   },
